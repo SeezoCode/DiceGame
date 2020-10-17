@@ -5,6 +5,10 @@ let diceRotation = {
     y: 0,
     z: 0
 }
+let faceSidesY = [0, 0, Math.PI * 2, Math.PI / 4 * 2, Math.PI / 4 * 4, Math.PI / 4 * 6]
+let faceSidesX = [Math.PI / 4 * 2, Math.PI / 4 * 6]
+let history = []
+
 /******* Add the create scene function ******/
 let createScene = function () {
 
@@ -19,7 +23,7 @@ let createScene = function () {
     camera.applyGravity = false
 
     // Add lights to the scene
-    let light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
+    let light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, -2, 2), scene);
     let light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
 
     var ground = BABYLON.Mesh.CreatePlane("ground", 20.0, scene);
@@ -49,75 +53,71 @@ let createScene = function () {
         wrap: true
     };
 
+    //var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
+    //box.material = mat;
 
-    var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
-    box.material = mat;
 
-    let animationBox = []
-    animationBox[0] = new BABYLON.Animation("tutoAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    animationBox[1] = new BABYLON.Animation("tutoAnimation", "rotation.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    animationBox[2] = new BABYLON.Animation("tutoAnimation", "rotation.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    // Animation keys
+    //BABYLON.SceneLoader.Append("./", "untitled.obj", scene, function (newMeshes) {
+        //let box2 = newMeshes[0]
+        //var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
+    BABYLON.SceneLoader.ImportMeshAsync(null, "./", "untitled.obj", scene).then((result) =>{
+        const box = result.meshes[0];
 
-    const animLength = 50
-    console.log(`animation length: ${animLength}`)
+        let animationBox = []
+        animationBox[0] = new BABYLON.Animation("tutoAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        animationBox[1] = new BABYLON.Animation("tutoAnimation", "rotation.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        animationBox[2] = new BABYLON.Animation("tutoAnimation", "rotation.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        // Animation keys
 
-    let i = Math.random()
+        const animLength = 50
+        console.log(`animation length: ${animLength}`)
 
-    let keys = [[],[]]
-    keys[0].push({
-        frame: 0,
-        value: diceRotation.y
-    });
-    keys[1].push({
-        frame: 0,
-        value: diceRotation.x
-    });
+        let x
+        let y = faceSidesY[Math.floor(Math.random() * faceSidesY.length)]
+        if (!y) x = faceSidesX[Math.floor(Math.random() * faceSidesX.length)]
+        else x = 0
 
-    if (i < .5) {
+        let keys = [[],[]]
+        keys[0].push({
+            frame: 0,
+            value: diceRotation.y
+        });
+        keys[1].push({
+            frame: 0,
+            value: diceRotation.x
+        });
+
         keys[0].push({
             frame: animLength,
-            value: Math.random() * Math.PI * 2
+            value: y
         });
         keys[1].push({
             frame: animLength,
-            value: 0
+            value: x
         });
-    }
-    else if (i > .5) {
-        keys[1].push({
-            frame: animLength,
-            value: Math.random() * Math.PI * 2
-        });
-        keys[0].push({
-            frame: animLength,
-            value: 0
-        });
-    }
-    animationBox[0].setKeys(keys[0]);
-    box.animations.push(animationBox[0]);
-    animationBox[1].setKeys(keys[1]);
-    box.animations.push(animationBox[1]);
 
 
-    setTimeout(async () => {
-        var anim = scene.beginAnimation(box, 0, animLength, false);
+        animationBox[0].setKeys(keys[0]);
+        box.animations.push(animationBox[0]);
+        animationBox[1].setKeys(keys[1]);
+        box.animations.push(animationBox[1]);
 
-        console.log("before");
-        await anim.waitAsync();
-        console.log("after");
-        diceRotation.x = box.rotation.x
-        diceRotation.y = box.rotation.y
-        diceRotation.z = box.rotation.z
-        console.log(diceRotation)
-        button.disabled = false
-        dominantDirection(diceRotation)
-        DOMStuff();
+        setTimeout(async () => {
+            let anim = scene.beginAnimation(box, 0, animLength, false);
+
+            console.log("before");
+            await anim.waitAsync();
+            console.log("after");
+            diceRotation.x = box.rotation.x
+            diceRotation.y = box.rotation.y
+            diceRotation.z = box.rotation.z
+            console.log(diceRotation)
+            DOMStuff();
+        });
     });
-
     return scene;
 };
 /******* End of the create scene function ******/
@@ -136,7 +136,6 @@ engine.runRenderLoop(function () {
 let button = document.querySelector('button');
 button.addEventListener('mousedown', event => {
     run = true
-    if (button.innerText === 'Play') button.disabled = false
     scene = createScene()
 
 })
@@ -144,18 +143,23 @@ button.addEventListener('mousedown', event => {
 
 
 function dominantDirection(cords) {
-    // Well it's easier to only check for one axis, so that's what i decided to do
-    if (cords.x > Math.PI / 4 * 5 && cords.x < Math.PI / 4 * 7) console.log(5)
-    else if (cords.x > Math.PI / 4 * 1 && cords.x < Math.PI / 4 * 3) console.log(4)
-    else if (cords.x > Math.PI / 4 * 3 && cords.x < Math.PI / 4 * 5) console.log(1)
-    else if (cords.x > Math.PI / 4 * 5 && cords.x < Math.PI / 4 * 7) console.log(0)
+    if (cords.x === Math.PI / 4 * 2) return 6;
+    if (cords.x === Math.PI / 4 * 6) return 1;
 
-    else if (cords.y > Math.PI / 4 * 7 || cords.y < Math.PI / 4 * 1) console.log(0)
-    else if (cords.y > Math.PI / 4 * 1 && cords.y < Math.PI / 4 * 3) console.log(3)
-    else if (cords.y > Math.PI / 4 * 3 && cords.y < Math.PI / 4 * 5) console.log(1)
-    else if (cords.y > Math.PI / 4 * 5 && cords.y < Math.PI / 4 * 7) console.log(2)
+    if (cords.y === Math.PI / 4 * 8) return 3;
+    if (cords.y === Math.PI / 4 * 2) return 5;
+    if (cords.y === Math.PI / 4 * 4) return 4;
+    if (cords.y === Math.PI / 4 * 6) return 2;
 }
 
 function DOMStuff() {
-    
+    history.push(dominantDirection(diceRotation))
+
+    let DOMScore = document.querySelector('h3');
+    DOMScore.innerHTML = `Current Score: ${history[history.length - 1]}`
+    let DOMP = document.querySelectorAll('p');
+    DOMP[0].innerHTML = `History: ${history}`
+    let avg = 0
+    history.forEach(elem => avg += elem)
+    DOMP[1].innerHTML = `Average: ${avg / history.length}`
 }
