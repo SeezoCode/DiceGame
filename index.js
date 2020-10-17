@@ -40,7 +40,7 @@ let createScene = function () {
     var faceUV = new Array(6);
 
     //set all faces to same
-    for (var i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i++) {
         faceUV[i] = new BABYLON.Vector4(i / columns, 0, (i + 1) / columns, 1 / rows);
     }
     //wrap set
@@ -53,36 +53,58 @@ let createScene = function () {
     var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
     box.material = mat;
 
-
-
-
-
     let animationBox = []
-    animationBox[0] = new BABYLON.Animation("tutoAnimation", "rotation.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+    animationBox[0] = new BABYLON.Animation("tutoAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    animationBox[1] = new BABYLON.Animation("tutoAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+    animationBox[1] = new BABYLON.Animation("tutoAnimation", "rotation.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     animationBox[2] = new BABYLON.Animation("tutoAnimation", "rotation.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     // Animation keys
-    for (let i = 0; i < 3; i++) {
-        let keys = [];
-        //At the animation key 0, the value of scaling is "1"
-        keys.push({
-            frame: 0,
-            value: 1
+
+    const animLength = 50
+    console.log(`animation length: ${animLength}`)
+
+    let i = Math.random()
+
+    let keys = [[],[]]
+    keys[0].push({
+        frame: 0,
+        value: diceRotation.y
+    });
+    keys[1].push({
+        frame: 0,
+        value: diceRotation.x
+    });
+
+    if (i < .5) {
+        keys[0].push({
+            frame: animLength,
+            value: Math.random() * Math.PI * 2
         });
-        keys.push({
-            frame: 100,
-            value: Math.random() * 300
+        keys[1].push({
+            frame: animLength,
+            value: 0
         });
-        animationBox[i].setKeys(keys);
-        box.animations.push(animationBox[i]);
     }
+    else if (i > .5) {
+        keys[1].push({
+            frame: animLength,
+            value: Math.random() * Math.PI * 2
+        });
+        keys[0].push({
+            frame: animLength,
+            value: 0
+        });
+    }
+    animationBox[0].setKeys(keys[0]);
+    box.animations.push(animationBox[0]);
+    animationBox[1].setKeys(keys[1]);
+    box.animations.push(animationBox[1]);
 
 
     setTimeout(async () => {
-        var anim = scene.beginAnimation(box, 0, 130, false);
+        var anim = scene.beginAnimation(box, 0, animLength, false);
 
         console.log("before");
         await anim.waitAsync();
@@ -91,11 +113,15 @@ let createScene = function () {
         diceRotation.y = box.rotation.y
         diceRotation.z = box.rotation.z
         console.log(diceRotation)
+        button.disabled = false
+        dominantDirection(diceRotation)
+        DOMStuff();
     });
 
     return scene;
 };
 /******* End of the create scene function ******/
+
 
 let scene = createScene(); //Call the createScene function
 scene.render();
@@ -109,8 +135,27 @@ engine.runRenderLoop(function () {
 
 let button = document.querySelector('button');
 button.addEventListener('mousedown', event => {
-    run = !run;
-    if (button.innerText === 'Play') button.innerText = 'Stop'
-    else button.innerText = 'Play'
+    run = true
+    if (button.innerText === 'Play') button.disabled = false
+    scene = createScene()
+
 })
 
+
+
+function dominantDirection(cords) {
+    // Well it's easier to only check for one axis, so that's what i decided to do
+    if (cords.x > Math.PI / 4 * 5 && cords.x < Math.PI / 4 * 7) console.log(5)
+    else if (cords.x > Math.PI / 4 * 1 && cords.x < Math.PI / 4 * 3) console.log(4)
+    else if (cords.x > Math.PI / 4 * 3 && cords.x < Math.PI / 4 * 5) console.log(1)
+    else if (cords.x > Math.PI / 4 * 5 && cords.x < Math.PI / 4 * 7) console.log(0)
+
+    else if (cords.y > Math.PI / 4 * 7 || cords.y < Math.PI / 4 * 1) console.log(0)
+    else if (cords.y > Math.PI / 4 * 1 && cords.y < Math.PI / 4 * 3) console.log(3)
+    else if (cords.y > Math.PI / 4 * 3 && cords.y < Math.PI / 4 * 5) console.log(1)
+    else if (cords.y > Math.PI / 4 * 5 && cords.y < Math.PI / 4 * 7) console.log(2)
+}
+
+function DOMStuff() {
+    
+}

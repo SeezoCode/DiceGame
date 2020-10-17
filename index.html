@@ -2,18 +2,36 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
-    <title>Babylon - Getting Started</title>
+    <title>Dice Game 3D!!!</title>
     <!-- Link to the last version of BabylonJS -->
     <script src="https://preview.babylonjs.com/babylon.js"></script>
     <!-- Link to the last version of BabylonJS loaders to enable loading filetypes such as .gltf -->
     <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <!-- Link to pep.js to ensure pointer events work consistently in all browsers -->
     <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 </head>
 <body>
-<canvas id="renderCanvas" height="600" width="600"></canvas>
-<script type="module" src = "index.js"></script>
+<div class="row">
+    <div class="col">
+        <canvas id="renderCanvas" height="600" width="600"></canvas>
+        <script type="module" src = "index.js"></script>
+    </div>
 
-<button>Play</button>
+    <div class="col">
+        <h1 style="margin-top: 20px">3D!!! Dice Game</h1>
+        <h4>Made by Seezo SoftWorks</h4> <hr><br><br>
+
+        <div style="float: bottom">
+            <h3>Current Score: Go ahead and play!</h3> <br>
+            <p>History: </p>
+            <p>Settings: </p>
+
+
+            <button class="btn btn-primary" style="width: 350px; margin-top: 20px">Play</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
