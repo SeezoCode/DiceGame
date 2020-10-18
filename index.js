@@ -6,12 +6,18 @@ let diceRotation = {
     z: 0
 }
 let diceNum = 0
+let multiplier = 1
+let speed = 50
 
 let faceSidesY = [Math.PI / 4 * 8, Math.PI / 4 * 4, Math.PI / 4 * 6, Math.PI / 4 * 2, Math.PI / 4 * 6, Math.PI / 4 * 2]
-let history = []
+
+let history = localStorage['history'] || '[]';
+history = JSON.parse(history);
+document.querySelector('p').innerHTML = `History: ${history.join(', ')}`
+
 
 /******* Add the create scene function ******/
-let createScene = function (num) {
+let createScene = function (num, animLength) {
 
     // Create the scene space
     let scene = new BABYLON.Scene(engine);
@@ -70,7 +76,6 @@ let createScene = function (num) {
         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     // Animation keys
 
-    const animLength = 50
     console.log(`animation length: ${animLength}`)
 
     let x = 0
@@ -139,16 +144,46 @@ engine.runRenderLoop(function () {
 
 
 
+
+
+function dominantDirection(cords) {
+    if (cords.x === Math.PI / 4 * 2) return 4;
+    if (cords.x === Math.PI / 4 * 6) return 5;
+
+    if (cords.y === Math.PI / 4 * 8) return 0;
+    if (cords.y === Math.PI / 4 * 2) return 3;
+    if (cords.y === Math.PI / 4 * 4) return 1;
+    if (cords.y === Math.PI / 4 * 6) return 2;
+}
+
+function DOMStuff() {
+    history.push(diceNum)
+    localStorage['history'] = JSON.stringify(history)
+
+    let DOMScore = document.querySelector('h3');
+    DOMScore.innerHTML = `Current Score: ${history[history.length - 1]}`
+    let DOMP = document.querySelectorAll('p');
+    DOMP[0].innerHTML = `History: ${history.join(', ')}`
+    let avg = 0
+    history.forEach(elem => avg += elem)
+    DOMP[1].innerHTML = `Average: ${Math.round(avg / history.length * 100) / 100}`
+}
+
+
+/* user interactions */
+
 let button = document.querySelector('button');
 button.addEventListener('mousedown', event => {
     run = true
-    function assignNum() {
-        let num = Math.floor(Math.random() * 6)
-        if (num === history[history.length - 1]) return assignNum(Math.floor(Math.random() * 6)); // prevents same number appearing twice
+    function assignNum(chance) {
+        let num = Math.floor(Math.random() * 6 * chance)
+        if (num > 5) num = 5;
+        if (num === history[history.length - 1]) return assignNum(multiplier); // prevents same number appearing twice
         return num;
     }
-    let num = assignNum()
-    scene = createScene(num) // Here you can specify the dice number
+    let num = assignNum(multiplier)
+    console.log(num, multiplier)
+    scene = createScene(num, speed) // Here you can specify the dice number
 })
 
 
@@ -170,25 +205,37 @@ if (date.getHours() > 16 || date.getHours() <= 8) {
     document.querySelector('input').setAttribute('checked', "")
 }
 
-
-function dominantDirection(cords) {
-    if (cords.x === Math.PI / 4 * 2) return 4;
-    if (cords.x === Math.PI / 4 * 6) return 5;
-
-    if (cords.y === Math.PI / 4 * 8) return 0;
-    if (cords.y === Math.PI / 4 * 2) return 3;
-    if (cords.y === Math.PI / 4 * 4) return 1;
-    if (cords.y === Math.PI / 4 * 6) return 2;
-}
-
-function DOMStuff() {
-    history.push(diceNum)
-
-    let DOMScore = document.querySelector('h3');
-    DOMScore.innerHTML = `Current Score: ${history[history.length - 1]}`
+document.getElementById('res').addEventListener('mousedown', event => {
+    history = []
+    localStorage['history'] = history
     let DOMP = document.querySelectorAll('p');
-    DOMP[0].innerHTML = `History: ${history}`
-    let avg = 0
-    history.forEach(elem => avg += elem)
-    DOMP[1].innerHTML = `Average: ${Math.round(avg / history.length * 100) / 100}`
-}
+    DOMP[0].innerHTML = `History: ${history.join(', ')}`
+    document.querySelectorAll('p')[1].innerHTML = 'Average: '
+})
+
+
+document.getElementById('inc').addEventListener('mousedown', event => {
+    multiplier += .20;
+    if (multiplier >= 20) multiplier = 20
+    multiplier = Math.round(multiplier * 100) / 100 // this otherwise causes floating point after several iterations
+    document.getElementById('multiplier').innerHTML = `Current Multiplier: ${multiplier}`
+})
+document.getElementById('dec').addEventListener('mousedown', event => {
+    multiplier -= .20;
+    if (multiplier <= .2) multiplier = .2
+    multiplier = Math.round(multiplier * 100) / 100
+    document.getElementById('multiplier').innerHTML = `Current Multiplier: ${multiplier}`
+})
+document.getElementById('speed').addEventListener(('blur'), event => {
+    speed = document.getElementById('speed').value
+})
+document.getElementById('value').addEventListener(('blur'), event => {
+    let val = document.getElementById('value').value
+    if (val >= 0 && val < 6) {
+        run = true
+        scene = createScene(Number(val), speed)
+    }
+    else {
+        document.getElementById('value').value = 'Invalid Value'
+    }
+})

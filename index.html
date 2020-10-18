@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
-    <title>Dice Game 3D!!!</title>
+    <title>Dice Game 3D</title>
     <!-- Link to the last version of BabylonJS -->
     <script src="https://preview.babylonjs.com/babylon.js"></script>
     <!-- Link to the last version of BabylonJS loaders to enable loading filetypes such as .gltf -->
@@ -10,6 +10,11 @@
     <!-- Link to pep.js to ensure pointer events work consistently in all browsers -->
     <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .button {
+            float: right; width: 175px; text-align: right;
+        }
+    </style>
 </head>
 <body>
 <div class="row">
@@ -24,8 +29,9 @@
 
         <div style="float: bottom">
             <h3>Current Score: Go ahead and play!</h3> <br>
-            <p>History: </p>
+            <p style="max-width: 300px"></p>
             <p>Average: </p> <br>
+            <p id="multiplier">Current Multiplier: 1.00</p>
             <!--<p>Settings: </p>-->
             <!-- Default checked -->
             <div class="custom-control custom-switch" id="darkMode">
@@ -38,5 +44,17 @@
         </div>
     </div>
 </div>
+<hr>
+
+<div style="max-width: 500px; margin-left: 20px">
+    <p>Settings: </p>
+    <p>Go to Value: <input style="float: right; text-align: right; width: 175px" id="value" class="form-control" placeholder="Set Your Value"></p></p>
+    <p>Animation Speed: <input style="float: right; text-align: right; width: 175px" id="speed" class="form-control" placeholder="Defaul value: 50"></p>
+    <p>Increase Chance of Winning (slightly): <button id="inc" class="btn btn-light button">Increase</button></p>
+    <p>Decrease Chance of Winning (very): <button id="dec" class="btn btn-light button">Decrease</button></p>
+    <p>Reset Current Score: <button id="res" class="btn btn-light button">Reset</button></p>
+    <p style="color: #848484">Score is save even when you leave the site</p>
+</div>
+
 </body>
 </html>
