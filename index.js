@@ -5,12 +5,13 @@ let diceRotation = {
     y: 0,
     z: 0
 }
-let faceSidesY = [0, 0, Math.PI * 2, Math.PI / 4 * 2, Math.PI / 4 * 4, Math.PI / 4 * 6]
-let faceSidesX = [Math.PI / 4 * 2, Math.PI / 4 * 6]
+let diceNum = 0
+
+let faceSidesY = [Math.PI / 4 * 8, Math.PI / 4 * 4, Math.PI / 4 * 6, Math.PI / 4 * 2, Math.PI / 4 * 6, Math.PI / 4 * 2]
 let history = []
 
 /******* Add the create scene function ******/
-let createScene = function () {
+let createScene = function (num) {
 
     // Create the scene space
     let scene = new BABYLON.Scene(engine);
@@ -50,74 +51,79 @@ let createScene = function () {
     //wrap set
     var options = {
         faceUV: faceUV,
-        wrap: true
+        wrap: true,
+        size: 1.5
     };
 
-    //var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
-    //box.material = mat;
+    var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
+    box.material = mat;
+
+    //BABYLON.SceneLoader.ImportMeshAsync(null, "./", "dice_simple.obj", scene).then((result) =>{
+        //const box = result.meshes[0];
+
+    let animationBox = []
+    animationBox[0] = new BABYLON.Animation("tutoAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    animationBox[1] = new BABYLON.Animation("tutoAnimation", "rotation.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    animationBox[2] = new BABYLON.Animation("tutoAnimation", "rotation.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    // Animation keys
+
+    const animLength = 50
+    console.log(`animation length: ${animLength}`)
+
+    let x = 0
+    let y = 0 // faceSidesY[Math.floor(Math.random() * faceSidesY.length)]
+
+    if (num === 4 || num === 5) {
+        x = faceSidesY[num];
+        y = Math.PI
+    }
+    else {
+        x = 0;
+        y = faceSidesY[num];
+    }
+    diceNum = num;
 
 
-    //BABYLON.SceneLoader.Append("./", "untitled.obj", scene, function (newMeshes) {
-        //let box2 = newMeshes[0]
-        //var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
-    BABYLON.SceneLoader.ImportMeshAsync(null, "./", "untitled.obj", scene).then((result) =>{
-        const box = result.meshes[0];
-
-        let animationBox = []
-        animationBox[0] = new BABYLON.Animation("tutoAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        animationBox[1] = new BABYLON.Animation("tutoAnimation", "rotation.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        animationBox[2] = new BABYLON.Animation("tutoAnimation", "rotation.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        // Animation keys
-
-        const animLength = 50
-        console.log(`animation length: ${animLength}`)
-
-        let x
-        let y = faceSidesY[Math.floor(Math.random() * faceSidesY.length)]
-        if (!y) x = faceSidesX[Math.floor(Math.random() * faceSidesX.length)]
-        else x = 0
-
-        let keys = [[],[]]
-        keys[0].push({
-            frame: 0,
-            value: diceRotation.y
-        });
-        keys[1].push({
-            frame: 0,
-            value: diceRotation.x
-        });
-
-        keys[0].push({
-            frame: animLength,
-            value: y
-        });
-        keys[1].push({
-            frame: animLength,
-            value: x
-        });
-
-
-        animationBox[0].setKeys(keys[0]);
-        box.animations.push(animationBox[0]);
-        animationBox[1].setKeys(keys[1]);
-        box.animations.push(animationBox[1]);
-
-        setTimeout(async () => {
-            let anim = scene.beginAnimation(box, 0, animLength, false);
-
-            console.log("before");
-            await anim.waitAsync();
-            console.log("after");
-            diceRotation.x = box.rotation.x
-            diceRotation.y = box.rotation.y
-            diceRotation.z = box.rotation.z
-            console.log(diceRotation)
-            DOMStuff();
-        });
+    let keys = [[],[]]
+    keys[0].push({
+        frame: 0,
+        value: diceRotation.y
     });
+    keys[1].push({
+        frame: 0,
+        value: diceRotation.x
+    });
+
+    keys[0].push({
+        frame: animLength,
+        value: y
+    });
+    keys[1].push({
+        frame: animLength,
+        value: x
+    });
+
+
+    animationBox[0].setKeys(keys[0]);
+    box.animations.push(animationBox[0]);
+    animationBox[1].setKeys(keys[1]);
+    box.animations.push(animationBox[1]);
+
+    setTimeout(async () => {
+        let anim = scene.beginAnimation(box, 0, animLength, false);
+
+        console.log("before");
+        await anim.waitAsync();
+        console.log("after");
+        diceRotation.x = box.rotation.x
+        diceRotation.y = box.rotation.y
+        diceRotation.z = box.rotation.z
+        console.log(diceRotation)
+        DOMStuff();
+        });
     return scene;
 };
 /******* End of the create scene function ******/
@@ -136,24 +142,47 @@ engine.runRenderLoop(function () {
 let button = document.querySelector('button');
 button.addEventListener('mousedown', event => {
     run = true
-    scene = createScene()
-
+    function assignNum() {
+        let num = Math.floor(Math.random() * 6)
+        if (num === history[history.length - 1]) return assignNum(Math.floor(Math.random() * 6)); // prevents same number appearing twice
+        return num;
+    }
+    let num = assignNum()
+    scene = createScene(num) // Here you can specify the dice number
 })
 
 
+let darkMode = document.getElementById('darkMode')
+darkMode.addEventListener('mousedown', event => {
+    if (document.body.style.backgroundColor !== 'rgb(20, 20, 20)') {
+        document.body.style.backgroundColor = 'rgb(20, 20, 20)'
+        document.body.style.color = 'rgb(220, 220, 220)'
+    }
+    else {
+        document.body.style.backgroundColor = 'rgb(250, 250, 250)'
+        document.body.style.color = 'rgb(10, 10, 10)'
+    }
+})
+let date = new Date()
+if (date.getHours() > 16 || date.getHours() <= 8) {
+    document.body.style.backgroundColor = 'rgb(20, 20, 20)'
+    document.body.style.color = 'rgb(220, 220, 220)'
+    document.querySelector('input').setAttribute('checked', "")
+}
+
 
 function dominantDirection(cords) {
-    if (cords.x === Math.PI / 4 * 2) return 6;
-    if (cords.x === Math.PI / 4 * 6) return 1;
+    if (cords.x === Math.PI / 4 * 2) return 4;
+    if (cords.x === Math.PI / 4 * 6) return 5;
 
-    if (cords.y === Math.PI / 4 * 8) return 3;
-    if (cords.y === Math.PI / 4 * 2) return 5;
-    if (cords.y === Math.PI / 4 * 4) return 4;
+    if (cords.y === Math.PI / 4 * 8) return 0;
+    if (cords.y === Math.PI / 4 * 2) return 3;
+    if (cords.y === Math.PI / 4 * 4) return 1;
     if (cords.y === Math.PI / 4 * 6) return 2;
 }
 
 function DOMStuff() {
-    history.push(dominantDirection(diceRotation))
+    history.push(diceNum)
 
     let DOMScore = document.querySelector('h3');
     DOMScore.innerHTML = `Current Score: ${history[history.length - 1]}`
@@ -161,5 +190,5 @@ function DOMStuff() {
     DOMP[0].innerHTML = `History: ${history}`
     let avg = 0
     history.forEach(elem => avg += elem)
-    DOMP[1].innerHTML = `Average: ${avg / history.length}`
+    DOMP[1].innerHTML = `Average: ${Math.round(avg / history.length * 100) / 100}`
 }
