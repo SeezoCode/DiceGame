@@ -1,4 +1,17 @@
 let canvas = document.getElementById("renderCanvas"); // Get the canvas element
+let width = window.innerWidth
+let height = window.innerHeight
+canvas.setAttribute('width', width / 2 + 'px')
+canvas.setAttribute('height', height + 'px')
+
+
+
+// let settings = document.getElementById('settings');
+// let settingsMarginTop = settings.clientHeight / 4
+// settings.style.marginTop = settingsMarginTop + 'px'
+// settings.style.paddingBottom = (height / 1.8 - settings.clientHeight - settingsMarginTop - 21) + 'px'
+
+
 let engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 let diceRotation = {
     x: 0,
@@ -7,13 +20,13 @@ let diceRotation = {
 }
 let diceNum = 0
 let multiplier = 1
-let speed = 50
- //   [Math.PI / 4 * 8, Math.PI / 4 * 4, Math.PI / 4 * 6, Math.PI / 4 * 2, Math.PI / 4 * 6, Math.PI / 4 * 2]
+let speed = 40
+
 let faceSidesY = [0, Math.PI / 4 * 6, Math.PI / 4 * 2, Math.PI / 4 * 4, Math.PI / 4 * 8, Math.PI / 4 * 6, Math.PI / 4 * 2]
 
 let history = localStorage['history'] || '[]';
 history = JSON.parse(history);
-document.querySelector('p').innerHTML = `History: ${history.join(', ')}`
+document.querySelectorAll('p')[1].innerHTML = `${history.join(', ')}`
 
 
 /******* Add the create scene function ******/
@@ -29,9 +42,9 @@ let createScene = function (num, animLength) {
     camera.applyGravity = false
 
     // Add lights to the scene
-    let light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(16, 12, 6), scene);
-    let light3 = new BABYLON.HemisphericLight("light3", new BABYLON.Vector3(-7, 15, -20), scene);
-    let light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
+    let light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(16, 6, 12), scene);
+    let light3 = new BABYLON.HemisphericLight("light3", new BABYLON.Vector3(-20, 40, -60), scene);
+    let light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 0, -.4), scene);
 
     var ground = BABYLON.Mesh.CreatePlane("ground", 20.0, scene);
     ground.material = new BABYLON.StandardMaterial("groundMat", scene);
@@ -58,14 +71,16 @@ let createScene = function (num, animLength) {
     var options = {
         faceUV: faceUV,
         wrap: true,
-        size: 1.5
+        size: window.innerWidth / 1200
     };
+
+    if (window.innerWidth < 575) options.size *= 4
 
     var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
     box.material = material;
 
     //BABYLON.SceneLoader.ImportMeshAsync(null, "./", "dice_simple.obj", scene).then((result) =>{
-        //const box = result.meshes[0];
+    //const box = result.meshes[0];
 
     let animationBox = []
     animationBox[0] = new BABYLON.Animation("tutoAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
@@ -128,12 +143,12 @@ let createScene = function (num, animLength) {
         diceRotation.z = box.rotation.z
         console.log(diceRotation)
         DOMStuff();
-        });
+    });
     return scene;
 };
 /******* End of the create scene function ******/
 
-
+resize()
 let scene = createScene(); //Call the createScene function
 scene.render();
 let run = false
@@ -163,27 +178,29 @@ function DOMStuff() {
     let DOMScore = document.querySelector('h3');
     DOMScore.innerHTML = `Current Score: ${history[history.length - 1]}`
     let DOMP = document.querySelectorAll('p');
-    DOMP[0].innerHTML = `History: ${history.join(', ')}`
+    DOMP[1].innerHTML = `${history.join(', ')}`
     let avg = 0
     history.forEach(elem => avg += elem)
-    DOMP[1].innerHTML = `Average: ${Math.round(avg / history.length * 100) / 100}`
+    DOMP[2].innerHTML = `Average: ${Math.round(avg / history.length * 100) / 100}`
 }
 
 
 /* user interactions */
 
-let button = document.querySelector('button');
-button.addEventListener('mousedown', event => {
-    run = true
-    function assignNum(chance) {
-        let num = Math.floor(Math.random() * 6 * chance)
-        if (num > 5) num = 5;
-        if (num === history[history.length - 1]) return assignNum(multiplier); // prevents same number appearing twice
-        return num;
-    }
-    let num = assignNum(multiplier)
-    console.log(num, multiplier)
-    scene = createScene(num, speed) // Here you can specify the dice number
+let button = document.querySelectorAll('button');
+button.forEach(elem => {
+    elem.addEventListener('mousedown', event => {
+        run = true
+        function assignNum(chance) {
+            let num = Math.ceil(Math.random() * 6 * chance)
+            if (num > 5) num = 6;
+            if (num === history[history.length - 1]) return assignNum(multiplier); // prevents same number appearing twice
+            return num;
+        }
+        let num = assignNum(multiplier)
+        console.log(num, multiplier)
+        scene = createScene(num, speed) // Here you can specify the dice number
+    })
 })
 
 
@@ -198,18 +215,50 @@ darkMode.addEventListener('mouseup', event => {
         document.body.style.color = 'rgb(10, 10, 10)'
     }
 })
-let date = new Date()
-if (date.getHours() > 16 || date.getHours() <= 8) {
-    document.body.style.backgroundColor = 'rgb(20, 20, 20)'
-    document.body.style.color = 'rgb(220, 220, 220)'
-    document.querySelector('input').setAttribute('checked', "")
+// let date = new Date()
+// if (date.getHours() > 16 || date.getHours() <= 8) {
+//     document.body.style.backgroundColor = 'rgb(20, 20, 20)'
+//     document.body.style.color = 'rgb(220, 220, 220)'
+//     document.querySelector('input').setAttribute('checked', "")
+// }
+
+function resize() {
+    let width = window.innerWidth
+    let height = window.innerHeight
+    if (width > 575) {
+        canvas.setAttribute('width', width / 2 - 80 + 'px')
+        canvas.setAttribute('height', height + 'px')
+
+        document.querySelector('button').style.display = 'none'
+        document.getElementById('2').style.height = height + 'px'
+
+        document.querySelectorAll('button').forEach(elem => elem.style.width = 175 + 'px')
+
+        document.querySelectorAll('button').forEach((elem , i) => {
+            if (i <= 1) elem.style.width = width / 2 - 40 + 'px'
+        })
+    }
+    else {
+        canvas.setAttribute('width', width + 'px')
+        canvas.setAttribute('height', height / 2 + 'px')
+
+        document.querySelector('button').style.display = 'grid'
+        document.getElementById('2').style.height = height / 2 - 6 + 'px'
+
+        document.querySelectorAll('button').forEach(elem => elem.style.width = 120 + 'px')
+
+        document.querySelectorAll('button').forEach((elem , i) => {
+            if (i <= 1) elem.style.width = width - 40 + 'px'
+        })
+    }
+    document.querySelector('div').style.width = width + 'px'
 }
 
 document.getElementById('res').addEventListener('mousedown', event => {
     history = []
     localStorage['history'] = history
     let DOMP = document.querySelectorAll('p');
-    DOMP[0].innerHTML = `History: ${history.join(', ')}`
+    DOMP[1].innerHTML = `History: ${history.join(', ')}`
     document.querySelectorAll('p')[1].innerHTML = 'Average: '
 })
 
@@ -233,7 +282,7 @@ document.getElementById('dec').addEventListener('mousedown', event => {
 })
 document.getElementById('speed').addEventListener(('blur'), event => {
     speed = document.getElementById('speed').value
-    if (speed == 0) speed = 50
+    if (speed == 0) speed = 40
 })
 document.getElementById('value').addEventListener(('blur'), event => {
     let val = document.getElementById('value').value
@@ -244,4 +293,7 @@ document.getElementById('value').addEventListener(('blur'), event => {
     else {
         document.getElementById('value').value = 'Invalid Value'
     }
+})
+window.addEventListener('resize', event => {
+    resize()
 })

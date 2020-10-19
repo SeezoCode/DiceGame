@@ -16,48 +16,54 @@
         }
         body {
             transition: background-color .20s ease;
+            background-color: rgb(20, 20, 20);
+            color: rgb(220, 220, 220)
         }
     </style>
 </head>
 <body>
 <div class="row">
-    <div class="col">
-        <canvas id="renderCanvas" height="600" width="600"></canvas>
+    <div class="col-sm" id="1">
+        <canvas id="renderCanvas"></canvas>
         <script type="module" src = "index.js"></script>
     </div>
 
-    <div class="col">
+    <div class="col-sm" id="2" style="overflow-y: auto; margin-left: 20px;">
+        <div style="overflow-x: auto;">
+            <button class="btn btn-primary" style="width: 350px; margin-top: 20px; display: none">Play</button>
+        </div>
+
         <h1 style="margin-top: 20px">3D Dice Game</h1>
         <h4>Made by Filip Hostinský</h4> <hr><br><br>
-
-        <div style="float: bottom">
+        <div>
             <h3>Current Score: Go ahead and play!</h3> <br>
-            <p style="max-width: 300px"></p>
+            <p>History:</p>
+            <p style="max-width: 300px; overflow-y: auto; height: 65px; border: 1px solid #373737; padding: 10px; border-radius: 8px"></p>
             <p>Average: </p> <br>
             <p id="multiplier">Current Multiplier: 1.00</p>
             <!--<p>Settings: </p>-->
             <!-- Default checked -->
             <div class="custom-control custom-switch" id="darkMode">
-                <input type="checkbox" class="custom-control-input" id="customSwitch1">
+                <input type="checkbox" class="custom-control-input" id="customSwitch1" checked>
                 <label class="custom-control-label" for="customSwitch1">Dark mode</label>
             </div>
 
+            <div style="overflow-x: auto; ">
+                <button class="btn btn-primary" style="max-width: 520px !important; margin-top: 20px">Play</button>
+            </div>
 
-            <button class="btn btn-primary" style="width: 350px; margin-top: 20px">Play</button>
+            <div style="max-width: 500px; margin-left: 20px; margin-top: 75px" id="settings">
+                <p>Settings: </p>
+                <p>Go to Value: <input style="float: right; text-align: right; width: 175px" id="value" class="form-control" placeholder="Set Your Value"></p>
+                <p>Animation Speed: <input style="float: right; text-align: right; width: 175px" id="speed" class="form-control" placeholder="Defaul value: 40"></p>
+                <p>Increase Chance of Winning (slightly): <button id="inc" class="btn btn-light button">Increase</button></p>
+                <p>Decrease Chance of Winning (very): <button id="dec" class="btn btn-light button">Decrease</button></p>
+                <p>Reset Current Score: <button id="res" class="btn btn-light button">Reset</button></p>
+                <p style="color: #848484">History is saved even when you leave the site</p>
+                <p style="color: #848484">Mad props to David for creating textures for the dice</p>
+            </div>
         </div>
     </div>
-</div>
-<hr>
-
-<div style="max-width: 500px; margin-left: 20px">
-    <p>Settings: </p>
-    <p>Go to Value: <input style="float: right; text-align: right; width: 175px" id="value" class="form-control" placeholder="Set Your Value"></p></p>
-    <p>Animation Speed: <input style="float: right; text-align: right; width: 175px" id="speed" class="form-control" placeholder="Defaul value: 50"></p>
-    <p>Increase Chance of Winning (slightly): <button id="inc" class="btn btn-light button">Increase</button></p>
-    <p>Decrease Chance of Winning (very): <button id="dec" class="btn btn-light button">Decrease</button></p>
-    <p>Reset Current Score: <button id="res" class="btn btn-light button">Reset</button></p>
-    <p style="color: #848484">History is saved even when you leave the site</p>
-    <p style="color: #848484">Mad props to David for creating textures for the dice</p>
 </div>
 
 </body>
