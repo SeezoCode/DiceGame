@@ -74,7 +74,7 @@ let createScene = function (num, animLength) {
         size: window.innerWidth / 1200
     };
 
-    if (window.innerWidth < 575) options.size *= 4
+    if (window.innerWidth <= 575) options.size *= 4
 
     var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
     box.material = material;
@@ -227,7 +227,7 @@ darkMode.addEventListener('mouseup', event => {
 function resize() {
     let width = window.innerWidth
     let height = window.innerHeight
-    if (width > 575) {
+    if (width > 768) {
         canvas.setAttribute('width', width / 2 + 'px')
         canvas.setAttribute('height', height - 6 + 'px')
 
@@ -237,8 +237,12 @@ function resize() {
         document.querySelectorAll('button').forEach(elem => elem.style.width = 175 + 'px')
 
         document.querySelectorAll('button').forEach((elem , i) => {
-            if (i <= 1) elem.style.width = width / 2 - 40 + 'px'
+            if (i <= 1) {
+                elem.style.width = width / 2 - 80 + 'px'
+                if (width / 2 - 80 > 520) elem.style.width = '520px'
+            }
         })
+        document.getElementById('settings').style.maxWidth = 500 + 'px'
     }
     else {
         canvas.setAttribute('width', width + 'px')
@@ -250,8 +254,9 @@ function resize() {
         document.querySelectorAll('button').forEach(elem => elem.style.width = 120 + 'px')
 
         document.querySelectorAll('button').forEach((elem , i) => {
-            if (i <= 1) elem.style.width = width - 40 + 'px'
+            if (i <= 1) elem.style.width = width - 50 + 'px'
         })
+        document.getElementById('settings').style.maxWidth = 1000 + 'px'
     }
     document.querySelector('div').style.width = width + 'px'
 }
