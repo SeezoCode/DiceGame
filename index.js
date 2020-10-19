@@ -5,7 +5,6 @@ canvas.setAttribute('width', width / 2 + 'px')
 canvas.setAttribute('height', height + 'px')
 
 
-
 // let settings = document.getElementById('settings');
 // let settingsMarginTop = settings.clientHeight / 4
 // settings.style.marginTop = settingsMarginTop + 'px'
@@ -37,7 +36,7 @@ let createScene = function (num, animLength) {
 
 
     // Add a camera to the scene and attach it to the canvas
-    let camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 5, new BABYLON.Vector3(0,0,0), scene);
+    let camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 5, new BABYLON.Vector3(0, 0, 0), scene);
     camera.attachControl(canvas, true);
     camera.applyGravity = false
 
@@ -99,15 +98,14 @@ let createScene = function (num, animLength) {
     if (num === 1 || num === 6) {
         x = faceSidesY[num];
         y = Math.PI
-    }
-    else {
+    } else {
         x = 0;
         y = faceSidesY[num];
     }
     diceNum = num;
 
 
-    let keys = [[],[]]
+    let keys = [[], []]
     keys[0].push({
         frame: 0,
         value: diceRotation.y
@@ -158,9 +156,6 @@ engine.runRenderLoop(function () {
 });
 
 
-
-
-
 function dominantDirection(cords) {
     if (cords.x === Math.PI / 4 * 2) return 4;
     if (cords.x === Math.PI / 4 * 6) return 5;
@@ -188,31 +183,37 @@ function DOMStuff() {
 /* user interactions */
 
 let button = document.querySelectorAll('button');
-button.forEach(elem => {
-    elem.addEventListener('mousedown', event => {
-        run = true
-        function assignNum(chance) {
-            let num = Math.ceil(Math.random() * 6 * chance)
-            if (num > 5) num = 6;
-            if (num === history[history.length - 1]) return assignNum(multiplier); // prevents same number appearing twice
-            return num;
-        }
-        let num = assignNum(multiplier)
-        console.log(num, multiplier)
-        scene = createScene(num, speed) // Here you can specify the dice number
-    })
+button.forEach((elem, i) => {
+    if (i <= 1) {
+        elem.addEventListener('mousedown', event => {
+            run = true
+
+            function assignNum(chance) {
+                let num = Math.ceil(Math.random() * 6 * chance)
+                if (num > 5) num = 6;
+                if (num === history[history.length - 1]) return assignNum(multiplier); // prevents same number appearing twice
+                return num;
+            }
+
+            let num = assignNum(multiplier)
+            console.log(num, multiplier)
+            scene = createScene(num, speed) // Here you can specify the dice number
+        })
+    }
 })
+
 changeBackgroundToDarkTheme()
+
 function changeBackgroundToDarkTheme() {
     document.body.style.backgroundColor = 'rgb(20, 20, 20)'
     document.body.style.color = 'rgb(220, 220, 220)'
 }
+
 let darkMode = document.getElementById('darkMode')
 darkMode.addEventListener('mouseup', event => {
     if (document.body.style.backgroundColor !== 'rgb(20, 20, 20)') {
         changeBackgroundToDarkTheme()
-    }
-    else {
+    } else {
         document.body.style.backgroundColor = 'rgb(250, 250, 250)'
         document.body.style.color = 'rgb(10, 10, 10)'
     }
@@ -236,15 +237,14 @@ function resize() {
 
         document.querySelectorAll('button').forEach(elem => elem.style.width = 175 + 'px')
 
-        document.querySelectorAll('button').forEach((elem , i) => {
+        document.querySelectorAll('button').forEach((elem, i) => {
             if (i <= 1) {
                 elem.style.width = width / 2 - 80 + 'px'
                 if (width / 2 - 80 > 520) elem.style.width = '520px'
             }
         })
         document.getElementById('settings').style.maxWidth = 500 + 'px'
-    }
-    else {
+    } else {
         canvas.setAttribute('width', width + 'px')
         canvas.setAttribute('height', height / 2 + 'px')
 
@@ -253,7 +253,7 @@ function resize() {
 
         document.querySelectorAll('button').forEach(elem => elem.style.width = 120 + 'px')
 
-        document.querySelectorAll('button').forEach((elem , i) => {
+        document.querySelectorAll('button').forEach((elem, i) => {
             if (i <= 1) elem.style.width = width - 50 + 'px'
         })
         document.getElementById('settings').style.maxWidth = 1000 + 'px'
@@ -265,8 +265,8 @@ document.getElementById('res').addEventListener('mousedown', event => {
     history = []
     localStorage['history'] = history
     let DOMP = document.querySelectorAll('p');
-    DOMP[1].innerHTML = `History: ${history.join(', ')}`
-    document.querySelectorAll('p')[1].innerHTML = 'Average: '
+    DOMP[1].innerHTML = `${history.join(', ')}`
+    DOMP[2].innerHTML = 'Average: '
 })
 
 
@@ -281,8 +281,7 @@ document.getElementById('dec').addEventListener('mousedown', event => {
     if (multiplier <= .2) {
         multiplier = .2
         document.getElementById('multiplier').innerHTML = `Current Multiplier: Is low, but never zero`
-    }
-    else {
+    } else {
         multiplier = Math.round(multiplier * 100) / 100
         document.getElementById('multiplier').innerHTML = `Current Multiplier: ${multiplier}`
     }
@@ -296,8 +295,7 @@ document.getElementById('value').addEventListener(('blur'), event => {
     if (val > 0 && val < 7) {
         run = true
         scene = createScene(Number(val--), speed)
-    }
-    else {
+    } else {
         document.getElementById('value').value = 'Invalid Value'
     }
 })
