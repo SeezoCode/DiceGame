@@ -202,13 +202,15 @@ button.forEach(elem => {
         scene = createScene(num, speed) // Here you can specify the dice number
     })
 })
-
-
+changeBackgroundToDarkTheme()
+function changeBackgroundToDarkTheme() {
+    document.body.style.backgroundColor = 'rgb(20, 20, 20)'
+    document.body.style.color = 'rgb(220, 220, 220)'
+}
 let darkMode = document.getElementById('darkMode')
 darkMode.addEventListener('mouseup', event => {
     if (document.body.style.backgroundColor !== 'rgb(20, 20, 20)') {
-        document.body.style.backgroundColor = 'rgb(20, 20, 20)'
-        document.body.style.color = 'rgb(220, 220, 220)'
+        changeBackgroundToDarkTheme()
     }
     else {
         document.body.style.backgroundColor = 'rgb(250, 250, 250)'
@@ -226,7 +228,7 @@ function resize() {
     let width = window.innerWidth
     let height = window.innerHeight
     if (width > 575) {
-        canvas.setAttribute('width', width / 2 - 80 + 'px')
+        canvas.setAttribute('width', width / 2 + 'px')
         canvas.setAttribute('height', height + 'px')
 
         document.querySelector('button').style.display = 'none'
