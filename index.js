@@ -8,8 +8,8 @@ let diceRotation = {
 let diceNum = 0
 let multiplier = 1
 let speed = 50
-
-let faceSidesY = [Math.PI / 4 * 8, Math.PI / 4 * 4, Math.PI / 4 * 6, Math.PI / 4 * 2, Math.PI / 4 * 6, Math.PI / 4 * 2]
+ //   [Math.PI / 4 * 8, Math.PI / 4 * 4, Math.PI / 4 * 6, Math.PI / 4 * 2, Math.PI / 4 * 6, Math.PI / 4 * 2]
+let faceSidesY = [0, Math.PI / 4 * 6, Math.PI / 4 * 2, Math.PI / 4 * 4, Math.PI / 4 * 8, Math.PI / 4 * 6, Math.PI / 4 * 2]
 
 let history = localStorage['history'] || '[]';
 history = JSON.parse(history);
@@ -18,7 +18,6 @@ document.querySelector('p').innerHTML = `History: ${history.join(', ')}`
 
 /******* Add the create scene function ******/
 let createScene = function (num, animLength) {
-
     // Create the scene space
     let scene = new BABYLON.Scene(engine);
     // scene.clearColor = BABYLON.Color3.White();
@@ -30,7 +29,8 @@ let createScene = function (num, animLength) {
     camera.applyGravity = false
 
     // Add lights to the scene
-    let light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, -2, 2), scene);
+    let light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(16, 12, 6), scene);
+    let light3 = new BABYLON.HemisphericLight("light3", new BABYLON.Vector3(-7, 15, -20), scene);
     let light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
 
     var ground = BABYLON.Mesh.CreatePlane("ground", 20.0, scene);
@@ -40,9 +40,9 @@ let createScene = function (num, animLength) {
     ground.position = new BABYLON.Vector3(0, -5, 0);
     ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
 
-    var mat = new BABYLON.StandardMaterial("mat", scene);
-    var texture = new BABYLON.Texture("https://i.imgur.com/lXehwjZ.jpg", scene);
-    mat.diffuseTexture = texture;
+    var material = new BABYLON.StandardMaterial("mat", scene);
+    material.diffuseTexture = new BABYLON.Texture("Textures/color.png", scene);
+    material.bumpTexture = new BABYLON.Texture("Textures/normal.png", scene);
 
     var columns = 6;  // 6 columns
     var rows = 1;  // 1 row
@@ -62,7 +62,7 @@ let createScene = function (num, animLength) {
     };
 
     var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
-    box.material = mat;
+    box.material = material;
 
     //BABYLON.SceneLoader.ImportMeshAsync(null, "./", "dice_simple.obj", scene).then((result) =>{
         //const box = result.meshes[0];
@@ -81,7 +81,7 @@ let createScene = function (num, animLength) {
     let x = 0
     let y = 0 // faceSidesY[Math.floor(Math.random() * faceSidesY.length)]
 
-    if (num === 4 || num === 5) {
+    if (num === 1 || num === 6) {
         x = faceSidesY[num];
         y = Math.PI
     }
@@ -157,7 +157,7 @@ function dominantDirection(cords) {
 }
 
 function DOMStuff() {
-    history.push(diceNum)
+    history.push(diceNum++)
     localStorage['history'] = JSON.stringify(history)
 
     let DOMScore = document.querySelector('h3');
@@ -188,7 +188,7 @@ button.addEventListener('mousedown', event => {
 
 
 let darkMode = document.getElementById('darkMode')
-darkMode.addEventListener('mousedown', event => {
+darkMode.addEventListener('mouseup', event => {
     if (document.body.style.backgroundColor !== 'rgb(20, 20, 20)') {
         document.body.style.backgroundColor = 'rgb(20, 20, 20)'
         document.body.style.color = 'rgb(220, 220, 220)'
@@ -222,18 +222,24 @@ document.getElementById('inc').addEventListener('mousedown', event => {
 })
 document.getElementById('dec').addEventListener('mousedown', event => {
     multiplier -= .20;
-    if (multiplier <= .2) multiplier = .2
-    multiplier = Math.round(multiplier * 100) / 100
-    document.getElementById('multiplier').innerHTML = `Current Multiplier: ${multiplier}`
+    if (multiplier <= .2) {
+        multiplier = .2
+        document.getElementById('multiplier').innerHTML = `Current Multiplier: Is low, but never zero`
+    }
+    else {
+        multiplier = Math.round(multiplier * 100) / 100
+        document.getElementById('multiplier').innerHTML = `Current Multiplier: ${multiplier}`
+    }
 })
 document.getElementById('speed').addEventListener(('blur'), event => {
     speed = document.getElementById('speed').value
+    if (speed == 0) speed = 50
 })
 document.getElementById('value').addEventListener(('blur'), event => {
     let val = document.getElementById('value').value
-    if (val >= 0 && val < 6) {
+    if (val > 0 && val < 7) {
         run = true
-        scene = createScene(Number(val), speed)
+        scene = createScene(Number(val--), speed)
     }
     else {
         document.getElementById('value').value = 'Invalid Value'
