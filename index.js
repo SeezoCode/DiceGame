@@ -71,10 +71,10 @@ let createScene = function (num, animLength) {
     var options = {
         faceUV: faceUV,
         wrap: true,
-        size: window.innerWidth / 1200
+        size: window.innerWidth / 1000
     };
 
-    if (window.innerWidth <= 575) options.size *= 4
+    if (window.innerWidth <= 768) options.size *= 3
 
     var box = BABYLON.MeshBuilder.CreateBox('box', options, scene);
     box.material = material;
