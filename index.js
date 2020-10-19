@@ -229,7 +229,7 @@ function resize() {
     let height = window.innerHeight
     if (width > 575) {
         canvas.setAttribute('width', width / 2 + 'px')
-        canvas.setAttribute('height', height + 'px')
+        canvas.setAttribute('height', height - 6 + 'px')
 
         document.querySelector('button').style.display = 'none'
         document.getElementById('2').style.height = height + 'px'
